@@ -1,0 +1,55 @@
+(* dynports =  1  *)
+(* cells_not_processed =  1  *)
+(* src = "rpa.v:18" *)
+module ripple_carry_adder(A, B, Cin, Sum, Cout);
+  (* src = "rpa.v:19" *)
+  input [3:0] A;
+  (* src = "rpa.v:20" *)
+  input [3:0] B;
+  (* src = "rpa.v:21" *)
+  input Cin;
+  (* src = "rpa.v:23" *)
+  output Cout;
+  (* src = "rpa.v:22" *)
+  output [3:0] Sum;
+  (* src = "rpa.v:26" *)
+  wire [4:0] carry;
+  (* module_not_derived = 32'd1 *)
+  (* src = "rpa.v:34" *)
+  full_adder \full_adders[0].FA  (
+    .A(A[0]),
+    .B(B[0]),
+    .Cin(carry[0]),
+    .Cout(carry[1]),
+    .Sum(Sum[0])
+  );
+  (* module_not_derived = 32'd1 *)
+  (* src = "rpa.v:34" *)
+  full_adder \full_adders[1].FA  (
+    .A(A[1]),
+    .B(B[1]),
+    .Cin(carry[1]),
+    .Cout(carry[2]),
+    .Sum(Sum[1])
+  );
+  (* module_not_derived = 32'd1 *)
+  (* src = "rpa.v:34" *)
+  full_adder \full_adders[2].FA  (
+    .A(A[2]),
+    .B(B[2]),
+    .Cin(carry[2]),
+    .Cout(carry[3]),
+    .Sum(Sum[2])
+  );
+  (* module_not_derived = 32'd1 *)
+  (* src = "rpa.v:34" *)
+  full_adder \full_adders[3].FA  (
+    .A(A[3]),
+    .B(B[3]),
+    .Cin(carry[3]),
+    .Cout(carry[4]),
+    .Sum(Sum[3])
+  );
+  assign carry[0] = Cin;
+  assign Cout = carry[4];
+endmodule
