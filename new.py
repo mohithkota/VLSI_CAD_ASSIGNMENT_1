@@ -11,7 +11,7 @@ gates_list = ['and', 'or', 'not', 'nand', 'nor', 'xor', 'xnor']
 
 # Function to extract text from a file
 def text_extraction():
-    with open("full_adder.txt", "r") as file:
+    with open("dmux_net.txt", "r") as file:
         content = file.read()
         data = content.split()
         return data
@@ -102,7 +102,7 @@ def levelize_circuit(gates_connections):
 
         for gate in current_level_gates:
             unresolved_gates.remove(gate)
-        
+       
         level += 1
 
     return level_dict
@@ -117,7 +117,7 @@ gates_connections.sort(key=lambda x: level_dict.get(x['connections']['Y'], 0))
 def calculate_gate_output(gates_connections, main_ip, main_op):
     results = {}
 
-
+    # Gate function logic
     def gate_function(gate_name, input1, input2=None):
         if gate_name == 'and':
             return input1 & input2
@@ -126,28 +126,32 @@ def calculate_gate_output(gates_connections, main_ip, main_op):
         elif gate_name == 'not':
             return ~input1 & 1
         elif gate_name == 'xor':
-            return input1 ^ input2 
+            return input1 ^ input2
         elif gate_name == 'xnor':
-            return ~(input1 ^ input2)
+            return ~(input1 ^ input2) & 1
         elif gate_name == 'nand':
-            return ~(input1 & input2)
+            return ~(input1 & input2) & 1
         elif gate_name == 'nor':
-            return ~(input1 | input2)
+            return ~(input1 | input2) & 1
         return None
 
+    # Loop through gates and calculate output
     for gate in gates_connections:
         temp_gate_name = gate['gate_name']
         connections = gate['connections']
 
-        input1 = main_ip[connections['A']] if connections['A'] in main_ip else results.get(connections['A'], None)
+        # Handle input propagation
+        input1 = main_ip.get(connections['A'], results.get(connections['A'], None))
         input2 = None
         if 'B' in connections:
-            input2 = main_ip[connections['B']] if connections['B'] in main_ip else results.get(connections['B'], None)
-        
+            input2 = main_ip.get(connections['B'], results.get(connections['B'], None))
+
+        # If inputs are missing, continue to next gate
         if input1 is None or (input2 is None and temp_gate_name != 'not'):
             print(f"Error: Missing inputs for gate {temp_gate_name}. Inputs: A={input1}, B={input2}")
             continue
 
+        # Calculate output for the gate
         output = gate_function(temp_gate_name, input1, input2)
         results[connections['Y']] = output
 
@@ -158,14 +162,11 @@ def calculate_gate_output(gates_connections, main_ip, main_op):
             print(f"Input B ({connections['B']}): {input2}")
         print(f"Output Y ({connections['Y']}): {output}")
 
+    # Print final outputs
     print("\nFinal Outputs:")
     for output in main_op:
-        # Use the assignments_dict to map the main_op to the actual wire that contains the result
         wire = assignments_dict.get(output, None)
-        if wire and wire in results:
-            final_output = results[wire]
-        else:
-            final_output = 'N/A'
+        final_output = results.get(wire, 'N/A')
         print(f"Output {output}: {final_output}")
 
 # Map user inputs to main inputs
